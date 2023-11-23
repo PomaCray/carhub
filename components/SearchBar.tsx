@@ -1,8 +1,11 @@
 'use client'
+
+
 import React from 'react'
 import SearchManufacturer from './SearchManufacturer';
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 
 const SearchButton = ({ otherClasses }: {otherClasses:string}) => (
@@ -19,9 +22,40 @@ const SearchButton = ({ otherClasses }: {otherClasses:string}) => (
 
 export default function SearchBar() {
     const [Manufacturer, setManufacturer] = useState('')
-    const [Model, setModel] = useState('')
+    const [model, setModel] = useState('')
+    const router = useRouter();
 
-    const handleSearch = () => {}
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      if(Manufacturer === '' && model === '') {
+        return alert('Please fill in the search bar')
+      }
+      
+      updateSearchParams(model.toLowerCase()  , Manufacturer.toLowerCase() )
+    }
+
+    const updateSearchParams = (model:string, Manufacturer:string) => {
+      const searchParams = new URLSearchParams(window.location.search);
+
+      if(model){
+        searchParams.set('model', model)
+      } else {
+        searchParams.delete('model')
+      }
+      if(Manufacturer){
+        searchParams.set('Manufacturer', Manufacturer)
+      } else{
+        searchParams.delete('Manufacturer')
+      }
+
+      const newPathName = `${window.location.pathname}?${searchParams.toString()}`
+      router.push(newPathName)
+
+    }
+
+
+
   return (
     <form className='searchbar' onSubmit={handleSearch}>
         <div className='searchbar__item'>
@@ -42,7 +76,7 @@ export default function SearchBar() {
           <input
             type='text'
             name='model'
-            value={Model}
+            value={model}
             onChange={(e) => setModel(e.target.value)}
             placeholder='Tiguan'
             className='searchbar__input'
